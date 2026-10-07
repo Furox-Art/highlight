@@ -30,6 +30,12 @@ All of the server-side setup below happens in your `hooks.server.ts` file. You
 can find more details about this file in the SvelteKit docs
 [here](https://kit.svelte.dev/docs/hooks#server-hooks).
 
+`@highlight-run/node` hooks into Node's `require` and `http` modules, so this
+guide applies when you deploy with the Node adapter (`@sveltejs/adapter-node`).
+On other runtimes, use the SDK built for that runtime instead — for example
+[Cloudflare Workers](../4_server/2_js/cloudflare.md) uses
+`@highlight-run/cloudflare`.
+
 ### Initialize the SDK
 
 Call `H.init` with your project ID. Grab your project ID from
@@ -49,7 +55,7 @@ H.init({
 `H.init` accepts a `NodeOptions` object. `projectID` is required, and we
 recommend setting `serviceName` and `environment`. Other options like
 `serviceVersion` (ideally set to the deployed git SHA) and `otlpEndpoint` are
-described in the [Node.js SDK docs](https://www.highlight.io/docs/sdk/nodejs).
+described in the [Node.js SDK docs](../../sdk/nodejs.md).
 
 ### Instrument requests
 
@@ -93,7 +99,10 @@ const handleHighlight: Handle = async ({ event, resolve }) => {
 	)
 }
 
-export const handle = sequence(handleHighlight, /* your other handle hooks */)
+export const handle = sequence(
+	handleHighlight,
+	// ...any handle hooks you already have
+)
 ```
 
 ### Capture server-side errors
@@ -124,7 +133,7 @@ export const handleError: HandleServerError = ({ error, event }) => {
 `H.parseHeaders` extracts the session and request identifiers from the
 `x-highlight-request` header so that the error is attributed to the frontend
 session that triggered it. Read more in
-[Fullstack Mapping](https://www.highlight.io/docs/getting-started/frontend-backend-mapping).
+[Fullstack Mapping](../2_frontend-backend-mapping.md).
 
 ### Logging
 
@@ -236,11 +245,11 @@ OTEL_NODE_ENABLED_INSTRUMENTATIONS=http,fs npm run dev
 To propagate trace context to downstream services, forward the
 `x-highlight-request` header (or use `H.startWithHeaders` /
 `H.runWithHeaders` with a callback that makes the outgoing request). Read
-more in [Fullstack Mapping](https://www.highlight.io/docs/getting-started/frontend-backend-mapping#distributed-tracing).
+more in [Fullstack Mapping](../2_frontend-backend-mapping.md#distributed-tracing).
 
 ## Related steps
 
 - [SvelteKit client quick start](../3_browser/6_sveltekit.md)
-- [Fullstack Mapping](https://www.highlight.io/docs/getting-started/frontend-backend-mapping)
-- [Node.js SDK docs](https://www.highlight.io/docs/sdk/nodejs)
+- [Fullstack Mapping](../2_frontend-backend-mapping.md)
+- [Node.js SDK docs](../../sdk/nodejs.md)
 - [Sourcemaps](../../general/6_product-features/2_error-monitoring/sourcemaps.md)
